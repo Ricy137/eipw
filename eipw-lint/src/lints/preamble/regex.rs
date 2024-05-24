@@ -4,23 +4,27 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::snippet::{ Annotation, AnnotationType, Slice, Snippet, SourceAnnotation };
 
-use crate::lints::{Context, Error, Lint};
+use crate::lints::{ Context, Error, Lint };
 
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 
-use std::fmt::{Debug, Display};
+use std::fmt::{ Debug, Display };
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 #[serde(rename_all = "kebab-case")]
+#[ts(export)]
 pub enum Mode {
     Includes,
     Excludes,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
+#[ts(export)]
 pub struct Regex<S> {
     pub name: S,
     pub mode: Mode,
@@ -28,13 +32,12 @@ pub struct Regex<S> {
     pub message: S,
 }
 
-impl<S> Lint for Regex<S>
-where
-    S: Debug + Display + AsRef<str>,
-{
+impl<S> Lint for Regex<S> where S: Debug + Display + AsRef<str> {
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.name.as_ref()) {
-            None => return Ok(()),
+            None => {
+                return Ok(());
+            }
             Some(s) => s,
         };
 
@@ -44,8 +47,12 @@ where
         let matches = re.is_match(value);
 
         let slice_label = match (self.mode, matches) {
-            (Mode::Includes, true) => return Ok(()),
-            (Mode::Excludes, false) => return Ok(()),
+            (Mode::Includes, true) => {
+                return Ok(());
+            }
+            (Mode::Excludes, false) => {
+                return Ok(());
+            }
 
             (Mode::Includes, false) => "required pattern was not matched",
             (Mode::Excludes, true) => "prohibited pattern was matched",

@@ -13,9 +13,12 @@ use std::fmt::Debug;
 
 use super::{default_annotation, Modifier};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 #[non_exhaustive]
+#[ts(export)]
 pub enum DefaultModifier<S> {
     SetDefaultAnnotation(default_annotation::SetDefaultAnnotation<S>),
 }

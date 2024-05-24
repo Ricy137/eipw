@@ -4,22 +4,28 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::snippet::{ Annotation, AnnotationType, Slice, Snippet, SourceAnnotation };
 
 use regex::RegexSet;
 
-use crate::lints::{Context, Error, Lint};
+use crate::lints::{ Context, Error, Lint };
 
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 
-use std::fmt::{Debug, Display};
+use std::fmt::{ Debug, Display };
+
+use ts_rs::TS;
+
+use wasm_bindgen::prelude::*;
 
 fn footer() -> Vec<Annotation<'static>> {
     vec![
         Annotation {
             annotation_type: AnnotationType::Help,
             id: None,
-            label: Some("Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email."),
+            label: Some(
+                "Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email."
+            ),
         },
         Annotation {
             annotation_type: AnnotationType::Help,
@@ -35,21 +41,21 @@ fn footer() -> Vec<Annotation<'static>> {
             annotation_type: AnnotationType::Help,
             id: None,
             label: Some("Try `Random J. User` for an author without contact information."),
-        },
+        }
     ]
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(transparent)]
+#[ts(export)]
 pub struct Author<S>(pub S);
 
-impl<S> Lint for Author<S>
-where
-    S: Debug + Display + AsRef<str>,
-{
+impl<S> Lint for Author<S> where S: Debug + Display + AsRef<str> {
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.0.as_ref()) {
-            None => return Ok(()),
+            None => {
+                return Ok(());
+            }
             Some(s) => s,
         };
 
@@ -68,8 +74,7 @@ where
             r"^[^()<>,@]+ \(@[a-zA-Z\d-]+\) <[^@][^>]*@[^>]+\.[^>]+>$",
             // Match just a name.
             r"^[^()<>,@]+$",
-        ])
-        .unwrap();
+        ]).unwrap();
 
         let mut has_username = false;
         let mut offset = 0;
@@ -104,10 +109,7 @@ where
                     annotations: vec![SourceAnnotation {
                         annotation_type: ctx.annotation_type(),
                         label: "unrecognized author",
-                        range: (
-                            name_count + current + 1,
-                            name_count + current + 1 + item_count,
-                        ),
+                        range: (name_count + current + 1, name_count + current + 1 + item_count),
                     }],
                 }],
                 footer: footer(),

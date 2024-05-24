@@ -12,8 +12,11 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(transparent)]
+#[ts(export)]
 pub struct Url<S>(pub S);
 
 impl<S> Lint for Url<S>

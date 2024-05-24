@@ -17,9 +17,12 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 #[serde(rename_all = "kebab-case")]
+#[ts(export)]
 pub enum Mode {
     /// Ensure that each syntax node individually doesn't contain the pattern.
     Excludes,
@@ -27,7 +30,8 @@ pub enum Mode {
     //       matches the pattern.
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
+#[ts(export)]
 pub struct Regex<S> {
     pub mode: Mode,
     pub pattern: S,

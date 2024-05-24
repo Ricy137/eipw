@@ -12,7 +12,10 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
+#[ts(export)]
 pub struct RequiredIfEq<S> {
     pub when: S,
     pub equals: S,

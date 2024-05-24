@@ -4,19 +4,22 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet};
+use annotate_snippets::snippet::{ Annotation, Slice, Snippet };
 
 use annotate_snippets::snippet::SourceAnnotation;
-use comrak::nodes::{Ast, LineColumn, NodeValue, Sourcepos};
+use comrak::nodes::{ Ast, LineColumn, NodeValue, Sourcepos };
 use regex::Regex;
 
-use crate::lints::{Context, Error, Lint};
+use crate::lints::{ Context, Error, Lint };
 
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 
 use std::fmt::Debug;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub struct HeadingsSpace;
 
 impl Lint for HeadingsSpace {
@@ -27,29 +30,30 @@ impl Lint for HeadingsSpace {
         let invalid_headings: Vec<_> = ctx
             .body()
             .descendants()
-            .filter_map(|node| match &*node.data.borrow() {
-                // Collect all matching Text nodes
-                Ast {
-                    value: NodeValue::Text(text),
-                    sourcepos:
-                        Sourcepos {
+            .filter_map(|node| {
+                match &*node.data.borrow() {
+                    // Collect all matching Text nodes
+                    Ast {
+                        value: NodeValue::Text(text),
+                        sourcepos: Sourcepos {
                             start: LineColumn { column: 1, .. }, // Only match text nodes at the start of the line
                             ..
                         },
-                    ..
-                } => {
-                    if let Some(matched_text) = heading_pattern.find(text) {
-                        let heading_level = matched_text.end();
-                        Some((
-                            text.clone(),
-                            node.data.borrow().sourcepos.start.line,
-                            heading_level,
-                        ))
-                    } else {
-                        None
+                        ..
+                    } => {
+                        if let Some(matched_text) = heading_pattern.find(text) {
+                            let heading_level = matched_text.end();
+                            Some((
+                                text.clone(),
+                                node.data.borrow().sourcepos.start.line,
+                                heading_level,
+                            ))
+                        } else {
+                            None
+                        }
                     }
+                    _ => None,
                 }
-                _ => None,
             })
             .collect();
 

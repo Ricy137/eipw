@@ -5,14 +5,14 @@
  */
 
 use eipw_lint::fetch::Fetch;
-use eipw_lint::lints::{DefaultLint, Lint};
-use eipw_lint::modifiers::{DefaultModifier, Modifier};
-use eipw_lint::reporters::{AdditionalHelp, Json};
-use eipw_lint::{default_lints, Linter, Options};
+use eipw_lint::lints::{ DefaultLint, Lint };
+use eipw_lint::modifiers::{ DefaultModifier, Modifier };
+use eipw_lint::reporters::{ AdditionalHelp, Json };
+use eipw_lint::{ default_lints, Linter, Options };
 
-use js_sys::{JsString, Object};
+use js_sys::{ JsString, Object };
 
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 
 use std::collections::HashMap;
 use std::fmt;
@@ -22,6 +22,37 @@ use std::path::PathBuf;
 use std::pin::Pin;
 
 use wasm_bindgen::prelude::*;
+
+use ts_rs::TS;
+
+// #[wasm_bindgen(typescript_custom_section)]
+// const TS_APPEND_CONTENT: &'static str =
+//     r#"
+// export type LintResult = {
+//     formatted: string;
+// };
+
+// export type LintOptions = {
+//     allow?: string[];
+//     warn?: string[];
+//     deny?: string[];
+//     default_lints?: Record<string, any>;
+//     default_modifiers?: any[];
+// };
+
+// export function lint(sources: string[], options?: LintOptions): Promise<LintResult>;
+
+// export function format(snippet: LintResult): string;
+// "#;
+
+// #[wasm_bindgen]
+// extern "C" {
+//     #[wasm_bindgen(typescript_type = "LintResult")]
+//     pub type LintResult;
+
+//     #[wasm_bindgen(typescript_type = "LintOptions")]
+//     pub type LintOptions;
+// }
 
 #[derive(Debug)]
 struct Error(String);
@@ -45,12 +76,14 @@ struct NodeFetch;
 impl Fetch for NodeFetch {
     fn fetch(
         &self,
-        path: PathBuf,
+        path: PathBuf
     ) -> Pin<Box<dyn Future<Output = Result<String, std::io::Error>>>> {
         let fut = async move {
             let path = match path.to_str() {
                 Some(p) => JsString::from(p),
-                None => return Err(std::io::ErrorKind::InvalidInput.into()),
+                None => {
+                    return Err(std::io::ErrorKind::InvalidInput.into());
+                }
             };
 
             let encoding = JsString::from("utf-8");
@@ -68,7 +101,8 @@ impl Fetch for NodeFetch {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(TS, Debug, Deserialize)]
+#[ts(export)]
 struct Opts {
     #[serde(default)]
     allow: Vec<String>,
@@ -83,6 +117,7 @@ struct Opts {
     default_lints: Option<HashMap<String, DefaultLint<String>>>,
 
     #[serde(default)]
+    #[ts(skip)]
     default_modifiers: Option<Vec<DefaultModifier<String>>>,
 }
 
@@ -134,17 +169,13 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
 
         if let Some(ref lints) = opts.default_lints {
             options.lints = Some(
-                lints
-                    .iter()
-                    .map(|(k, v)| (k.as_str(), Box::new(v.clone()) as Box<dyn Lint>)),
+                lints.iter().map(|(k, v)| (k.as_str(), Box::new(v.clone()) as Box<dyn Lint>))
             );
         }
 
         if let Some(ref modifiers) = opts.default_modifiers {
             options.modifiers = Some(
-                modifiers
-                    .iter()
-                    .map(|m| Box::new(m.clone()) as Box<dyn Modifier>),
+                modifiers.iter().map(|m| Box::new(m.clone()) as Box<dyn Modifier>)
             );
         }
 
@@ -163,11 +194,7 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
     let reporter = linter.run().await?;
 
     let serializer = serde_wasm_bindgen::Serializer::json_compatible();
-    let js_value = reporter
-        .into_inner()
-        .into_reports()
-        .serialize(&serializer)
-        .unwrap();
+    let js_value = reporter.into_inner().into_reports().serialize(&serializer).unwrap();
 
     Ok(js_value)
 }
@@ -178,7 +205,9 @@ pub fn format(snippet: &JsValue) -> Result<String, JsError> {
 
     let obj = match value {
         serde_json::Value::Object(o) => o,
-        _ => return Err(JsError::new("expected object")),
+        _ => {
+            return Err(JsError::new("expected object"));
+        }
     };
 
     match obj.get("formatted") {

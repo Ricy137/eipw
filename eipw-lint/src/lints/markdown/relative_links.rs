@@ -4,33 +4,33 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet};
+use annotate_snippets::snippet::{ Annotation, Slice, Snippet };
 
 use comrak::nodes::Ast;
 
-use crate::lints::{Context, Error, Lint};
-use crate::tree::{self, Next, TraverseExt};
+use crate::lints::{ Context, Error, Lint };
+use crate::tree::{ self, Next, TraverseExt };
 
-use regex::{Regex, RegexSet};
+use regex::{ Regex, RegexSet };
 
 use scraper::node::Node as HtmlNode;
 use scraper::Html;
 
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 
 use snafu::Snafu;
 
-use std::fmt::{Debug, Display};
+use std::fmt::{ Debug, Display };
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub struct RelativeLinks<S> {
     pub exceptions: Vec<S>,
 }
 
-impl<S> Lint for RelativeLinks<S>
-where
-    S: Debug + Display + AsRef<str>,
-{
+impl<S> Lint for RelativeLinks<S> where S: Debug + Display + AsRef<str> {
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
 
@@ -39,8 +39,7 @@ where
         let mut visitor = Visitor::default();
         ctx.body().traverse().visit(&mut visitor)?;
 
-        let links = visitor
-            .links
+        let links = visitor.links
             .into_iter()
             .filter(|l| re.is_match(&l.address) && !exceptions.is_match(&l.address));
 
@@ -97,11 +96,14 @@ impl Visitor {
         for node in fragment.tree.nodes() {
             let elem = match node.value() {
                 HtmlNode::Element(e) => e,
-                _ => continue,
+                _ => {
+                    continue;
+                }
             };
 
-            if elem.name().eq_ignore_ascii_case("style")
-                || elem.id().unwrap_or_default().eq_ignore_ascii_case("style")
+            if
+                elem.name().eq_ignore_ascii_case("style") ||
+                elem.id().unwrap_or_default().eq_ignore_ascii_case("style")
             {
                 return Err(Error::custom(Unsupported));
             }
@@ -125,7 +127,7 @@ impl tree::Visitor for Visitor {
     fn enter_image(
         &mut self,
         ast: &Ast,
-        link: &comrak::nodes::NodeLink,
+        link: &comrak::nodes::NodeLink
     ) -> Result<Next, Self::Error> {
         self.push(ast, &link.url)
     }
@@ -133,7 +135,7 @@ impl tree::Visitor for Visitor {
     fn enter_link(
         &mut self,
         ast: &Ast,
-        link: &comrak::nodes::NodeLink,
+        link: &comrak::nodes::NodeLink
     ) -> Result<Next, Self::Error> {
         self.push(ast, &link.url)
     }
@@ -141,7 +143,7 @@ impl tree::Visitor for Visitor {
     fn enter_html_block(
         &mut self,
         ast: &Ast,
-        html_block: &comrak::nodes::NodeHtmlBlock,
+        html_block: &comrak::nodes::NodeHtmlBlock
     ) -> Result<Next, Self::Error> {
         self.html(ast, &html_block.literal)
     }

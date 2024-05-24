@@ -4,25 +4,27 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::snippet::{ Annotation, Slice, Snippet, SourceAnnotation };
 
-use crate::lints::{Context, Error, Lint};
+use crate::lints::{ Context, Error, Lint };
 
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 
-use std::fmt::{Debug, Display};
+use std::fmt::{ Debug, Display };
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(transparent)]
+#[ts(export)]
 pub struct List<S>(pub S);
 
-impl<S> Lint for List<S>
-where
-    S: Debug + Display + AsRef<str>,
-{
+impl<S> Lint for List<S> where S: Debug + Display + AsRef<str> {
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.0.as_ref()) {
-            None => return Ok(()),
+            None => {
+                return Ok(());
+            }
             Some(s) => s,
         };
 

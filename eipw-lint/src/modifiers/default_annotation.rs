@@ -11,12 +11,15 @@ use std::fmt::Debug;
 use crate::lints::Context;
 use crate::LintSettings;
 
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 
-use super::{Error, Modifier};
+use super::{ Error, Modifier };
 
-#[derive(Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Serialize, Deserialize)]
 #[serde(remote = "AnnotationType", rename_all = "kebab-case")]
+#[ts(export)]
 enum AnnotationTypeDef {
     Error,
     Warning,
@@ -25,23 +28,24 @@ enum AnnotationTypeDef {
     Help,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
+#[ts(export)]
 pub struct SetDefaultAnnotation<S> {
     pub name: S,
     pub value: S,
 
     #[serde(with = "AnnotationTypeDef")]
+    #[ts(skip)]
     pub annotation_type: AnnotationType,
 }
 
-impl<S> Modifier for SetDefaultAnnotation<S>
-where
-    S: Debug + AsRef<str>,
-{
+impl<S> Modifier for SetDefaultAnnotation<S> where S: Debug + AsRef<str> {
     fn modify(&self, context: &Context, settings: &mut LintSettings) -> Result<(), Error> {
         let value = match context.preamble().by_name(self.name.as_ref()) {
             Some(v) => v.value().trim(),
-            None => return Ok(()),
+            None => {
+                return Ok(());
+            }
         };
 
         if value == self.value.as_ref() {

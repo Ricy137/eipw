@@ -15,7 +15,10 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
 use std::path::Path;
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
+#[ts(export)]
 pub struct ProposalRef<S> {
     pub name: S,
     pub prefix: S,

@@ -4,17 +4,20 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use crate::{Context, FetchContext};
+use crate::{ Context, FetchContext };
 
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 
-use std::fmt::{Debug, Display};
+use std::fmt::{ Debug, Display };
 
-use super::{markdown, preamble, Lint};
+use super::{ markdown, preamble, Lint };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 #[non_exhaustive]
+#[ts(export)]
 pub enum DefaultLint<S> {
     PreambleAuthor {
         name: preamble::Author<S>,
@@ -70,14 +73,14 @@ pub enum DefaultLint<S> {
 }
 
 impl<S> DefaultLint<S>
-where
-    S: 'static
-        + Display
-        + Debug
-        + AsRef<str>
-        + Clone
-        + PartialEq<String>
-        + for<'eq> PartialEq<&'eq str>,
+    where
+        S: 'static +
+            Display +
+            Debug +
+            AsRef<str> +
+            Clone +
+            PartialEq<String> +
+            for<'eq> PartialEq<&'eq str>
 {
     pub(crate) fn boxed(self) -> Box<dyn Lint> {
         match self {
@@ -115,8 +118,7 @@ where
 }
 
 impl<S> DefaultLint<S>
-where
-    S: Display + Debug + AsRef<str> + Clone + PartialEq<String> + for<'eq> PartialEq<&'eq str>,
+    where S: Display + Debug + AsRef<str> + Clone + PartialEq<String> + for<'eq> PartialEq<&'eq str>
 {
     pub(crate) fn as_inner(&self) -> &dyn Lint {
         match self {
@@ -153,41 +155,45 @@ where
     }
 }
 
-impl<S> DefaultLint<S>
-where
-    S: AsRef<str>,
-{
+impl<S> DefaultLint<S> where S: AsRef<str> {
     pub(crate) fn map_to_str(&self) -> DefaultLint<&str> {
         match self {
-            Self::PreambleAuthor { name } => DefaultLint::PreambleAuthor {
-                name: preamble::Author(name.0.as_ref()),
-            },
-            Self::PreambleDate { name } => DefaultLint::PreambleDate {
-                name: preamble::Date(name.0.as_ref()),
-            },
-            Self::PreambleFileName(l) => DefaultLint::PreambleFileName(preamble::FileName {
-                name: l.name.as_ref(),
-                prefix: l.prefix.as_ref(),
-                suffix: l.suffix.as_ref(),
-            }),
-            Self::PreambleLength(l) => DefaultLint::PreambleLength(preamble::Length {
-                max: l.max,
-                min: l.min,
-                name: l.name.as_ref(),
-            }),
-            Self::PreambleList { name } => DefaultLint::PreambleList {
-                name: preamble::List(name.0.as_ref()),
-            },
+            Self::PreambleAuthor { name } =>
+                DefaultLint::PreambleAuthor {
+                    name: preamble::Author(name.0.as_ref()),
+                },
+            Self::PreambleDate { name } =>
+                DefaultLint::PreambleDate {
+                    name: preamble::Date(name.0.as_ref()),
+                },
+            Self::PreambleFileName(l) =>
+                DefaultLint::PreambleFileName(preamble::FileName {
+                    name: l.name.as_ref(),
+                    prefix: l.prefix.as_ref(),
+                    suffix: l.suffix.as_ref(),
+                }),
+            Self::PreambleLength(l) =>
+                DefaultLint::PreambleLength(preamble::Length {
+                    max: l.max,
+                    min: l.min,
+                    name: l.name.as_ref(),
+                }),
+            Self::PreambleList { name } =>
+                DefaultLint::PreambleList {
+                    name: preamble::List(name.0.as_ref()),
+                },
             Self::PreambleNoDuplicates(_) => {
                 DefaultLint::PreambleNoDuplicates(preamble::NoDuplicates)
             }
-            Self::PreambleOneOf(l) => DefaultLint::PreambleOneOf(preamble::OneOf {
-                name: l.name.as_ref(),
-                values: l.values.iter().map(AsRef::as_ref).collect(),
-            }),
-            Self::PreambleOrder { names } => DefaultLint::PreambleOrder {
-                names: preamble::Order(names.0.iter().map(AsRef::as_ref).collect()),
-            },
+            Self::PreambleOneOf(l) =>
+                DefaultLint::PreambleOneOf(preamble::OneOf {
+                    name: l.name.as_ref(),
+                    values: l.values.iter().map(AsRef::as_ref).collect(),
+                }),
+            Self::PreambleOrder { names } =>
+                DefaultLint::PreambleOrder {
+                    names: preamble::Order(names.0.iter().map(AsRef::as_ref).collect()),
+                },
             Self::PreambleProposalRef(l) => {
                 DefaultLint::PreambleProposalRef(preamble::ProposalRef {
                     name: l.name.as_ref(),
@@ -195,21 +201,23 @@ where
                     suffix: l.suffix.as_ref(),
                 })
             }
-            Self::PreambleRegex(l) => DefaultLint::PreambleRegex(preamble::Regex {
-                message: l.message.as_ref(),
-                mode: l.mode,
-                name: l.name.as_ref(),
-                pattern: l.pattern.as_ref(),
-            }),
+            Self::PreambleRegex(l) =>
+                DefaultLint::PreambleRegex(preamble::Regex {
+                    message: l.message.as_ref(),
+                    mode: l.mode,
+                    name: l.name.as_ref(),
+                    pattern: l.pattern.as_ref(),
+                }),
             Self::PreambleRequireReferenced(l) => {
                 DefaultLint::PreambleRequireReferenced(preamble::RequireReferenced {
                     name: l.name.as_ref(),
                     requires: l.requires.as_ref(),
                 })
             }
-            Self::PreambleRequired { names } => DefaultLint::PreambleRequired {
-                names: preamble::Required(names.0.iter().map(AsRef::as_ref).collect()),
-            },
+            Self::PreambleRequired { names } =>
+                DefaultLint::PreambleRequired {
+                    names: preamble::Required(names.0.iter().map(AsRef::as_ref).collect()),
+                },
             Self::PreambleRequiredIfEq(l) => {
                 DefaultLint::PreambleRequiredIfEq(preamble::RequiredIfEq {
                     equals: l.equals.as_ref(),
@@ -223,23 +231,25 @@ where
                     status: l.status.as_ref(),
                     suffix: l.suffix.as_ref(),
                     prefix: l.prefix.as_ref(),
-                    flow: l
-                        .flow
+                    flow: l.flow
                         .iter()
                         .map(|v| v.iter().map(AsRef::as_ref).collect())
                         .collect(),
                 })
             }
             Self::PreambleTrim(_) => DefaultLint::PreambleTrim(preamble::Trim),
-            Self::PreambleUint { name } => DefaultLint::PreambleUint {
-                name: preamble::Uint(name.0.as_ref()),
-            },
-            Self::PreambleUintList { name } => DefaultLint::PreambleUintList {
-                name: preamble::UintList(name.0.as_ref()),
-            },
-            Self::PreambleUrl { name } => DefaultLint::PreambleUrl {
-                name: preamble::Url(name.0.as_ref()),
-            },
+            Self::PreambleUint { name } =>
+                DefaultLint::PreambleUint {
+                    name: preamble::Uint(name.0.as_ref()),
+                },
+            Self::PreambleUintList { name } =>
+                DefaultLint::PreambleUintList {
+                    name: preamble::UintList(name.0.as_ref()),
+                },
+            Self::PreambleUrl { name } =>
+                DefaultLint::PreambleUrl {
+                    name: preamble::Url(name.0.as_ref()),
+                },
 
             Self::MarkdownHtmlComments(l) => {
                 DefaultLint::MarkdownHtmlComments(markdown::HtmlComments {
@@ -247,60 +257,65 @@ where
                     warn_for: l.warn_for.iter().map(AsRef::as_ref).collect(),
                 })
             }
-            Self::MarkdownJsonSchema(l) => DefaultLint::MarkdownJsonSchema(markdown::JsonSchema {
-                help: l.help.as_ref(),
-                language: l.language.as_ref(),
-                schema: l.schema.as_ref(),
-                additional_schemas: l
-                    .additional_schemas
-                    .iter()
-                    .map(|(a, b)| (a.as_ref(), b.as_ref()))
-                    .collect(),
-            }),
-            Self::MarkdownLinkFirst { pattern } => DefaultLint::MarkdownLinkFirst {
-                pattern: markdown::LinkFirst(pattern.0.as_ref()),
-            },
-            Self::MarkdownLinkStatus(l) => DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
-                prefix: l.prefix.as_ref(),
-                suffix: l.suffix.as_ref(),
-                status: l.status.as_ref(),
-                flow: l
-                    .flow
-                    .iter()
-                    .map(|v| v.iter().map(AsRef::as_ref).collect())
-                    .collect(),
-            }),
+            Self::MarkdownJsonSchema(l) =>
+                DefaultLint::MarkdownJsonSchema(markdown::JsonSchema {
+                    help: l.help.as_ref(),
+                    language: l.language.as_ref(),
+                    schema: l.schema.as_ref(),
+                    additional_schemas: l.additional_schemas
+                        .iter()
+                        .map(|(a, b)| (a.as_ref(), b.as_ref()))
+                        .collect(),
+                }),
+            Self::MarkdownLinkFirst { pattern } =>
+                DefaultLint::MarkdownLinkFirst {
+                    pattern: markdown::LinkFirst(pattern.0.as_ref()),
+                },
+            Self::MarkdownLinkStatus(l) =>
+                DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
+                    prefix: l.prefix.as_ref(),
+                    suffix: l.suffix.as_ref(),
+                    status: l.status.as_ref(),
+                    flow: l.flow
+                        .iter()
+                        .map(|v| v.iter().map(AsRef::as_ref).collect())
+                        .collect(),
+                }),
             Self::MarkdownProposalRef(l) => {
                 DefaultLint::MarkdownProposalRef(markdown::ProposalRef {
                     prefix: l.prefix.as_ref(),
                     suffix: l.suffix.as_ref(),
                 })
             }
-            Self::MarkdownRegex(l) => DefaultLint::MarkdownRegex(markdown::Regex {
-                message: l.message.as_ref(),
-                mode: l.mode,
-                pattern: l.pattern.as_ref(),
-            }),
+            Self::MarkdownRegex(l) =>
+                DefaultLint::MarkdownRegex(markdown::Regex {
+                    message: l.message.as_ref(),
+                    mode: l.mode,
+                    pattern: l.pattern.as_ref(),
+                }),
             Self::MarkdownRelativeLinks(l) => {
                 DefaultLint::MarkdownRelativeLinks(markdown::RelativeLinks {
                     exceptions: l.exceptions.iter().map(AsRef::as_ref).collect(),
                 })
             }
-            Self::MarkdownSectionOrder { sections } => DefaultLint::MarkdownSectionOrder {
-                sections: markdown::SectionOrder(sections.0.iter().map(AsRef::as_ref).collect()),
-            },
-            Self::MarkdownSectionRequired { sections } => DefaultLint::MarkdownSectionRequired {
-                sections: markdown::SectionRequired(sections.0.iter().map(AsRef::as_ref).collect()),
-            },
+            Self::MarkdownSectionOrder { sections } =>
+                DefaultLint::MarkdownSectionOrder {
+                    sections: markdown::SectionOrder(
+                        sections.0.iter().map(AsRef::as_ref).collect()
+                    ),
+                },
+            Self::MarkdownSectionRequired { sections } =>
+                DefaultLint::MarkdownSectionRequired {
+                    sections: markdown::SectionRequired(
+                        sections.0.iter().map(AsRef::as_ref).collect()
+                    ),
+                },
             Self::MarkdownHeadingsSpace(l) => DefaultLint::MarkdownHeadingsSpace(l.clone()),
         }
     }
 }
 
-impl<S> Lint for DefaultLint<S>
-where
-    S: std::fmt::Debug + AsRef<str>,
-{
+impl<S> Lint for DefaultLint<S> where S: std::fmt::Debug + AsRef<str> {
     fn find_resources(&self, ctx: &FetchContext<'_>) -> Result<(), super::Error> {
         let lint = self.map_to_str();
         lint.as_inner().find_resources(ctx)

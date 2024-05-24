@@ -12,8 +12,11 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Serialize, Deserialize)]
 #[serde(transparent)]
+#[ts(export)]
 pub struct Required<S>(pub Vec<S>);
 
 impl<S> Lint for Required<S>
