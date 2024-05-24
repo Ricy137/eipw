@@ -117,7 +117,6 @@ struct Opts {
     default_lints: Option<HashMap<String, DefaultLint<String>>>,
 
     #[serde(default)]
-    #[ts(skip)]
     default_modifiers: Option<Vec<DefaultModifier<String>>>,
 }
 

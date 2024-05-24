@@ -20,7 +20,7 @@ use ts_rs::TS;
 #[derive(TS, Serialize, Deserialize)]
 #[serde(remote = "AnnotationType", rename_all = "kebab-case")]
 #[ts(export)]
-enum AnnotationTypeDef {
+pub enum AnnotationTypeDef {
     Error,
     Warning,
     Info,
@@ -35,7 +35,7 @@ pub struct SetDefaultAnnotation<S> {
     pub value: S,
 
     #[serde(with = "AnnotationTypeDef")]
-    #[ts(skip)]
+    #[ts(type = "AnnotationTypeDef")]
     pub annotation_type: AnnotationType,
 }
 

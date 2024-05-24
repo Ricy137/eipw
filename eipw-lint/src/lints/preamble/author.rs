@@ -16,8 +16,6 @@ use std::fmt::{ Debug, Display };
 
 use ts_rs::TS;
 
-use wasm_bindgen::prelude::*;
-
 fn footer() -> Vec<Annotation<'static>> {
     vec![
         Annotation {
