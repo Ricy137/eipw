@@ -12,11 +12,11 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display, Write};
 
-use ts_rs::TS;
+use tsify::Tsify;
 
-#[derive(TS, Debug, Clone, Serialize, Deserialize)]
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
 #[serde(transparent)]
-#[ts(export)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct Order<S>(pub Vec<S>);
 
 impl<S> Order<S>

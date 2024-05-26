@@ -12,10 +12,10 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
 
-use ts_rs::TS;
+use tsify::Tsify;
 
-#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
-#[ts(export)]
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct RequiredIfEq<S> {
     pub when: S,
     pub equals: S,

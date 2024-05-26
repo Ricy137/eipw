@@ -18,10 +18,10 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display};
 use std::path::PathBuf;
 
-use ts_rs::TS;
+use tsify::Tsify;
 
-#[derive(TS,Debug, Clone, Serialize, Deserialize)]
-#[ts(export)]
+#[derive(Tsify,Debug, Clone, Serialize, Deserialize)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct LinkStatus<S> {
     pub status: S,
     pub flow: Vec<Vec<S>>,

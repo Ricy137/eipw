@@ -13,12 +13,12 @@ use std::fmt::Debug;
 
 use super::{default_annotation, Modifier};
 
-use ts_rs::TS;
+use tsify::Tsify;
 
-#[derive(TS, Debug, Clone, Serialize, Deserialize)]
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 #[non_exhaustive]
-#[ts(export)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub enum DefaultModifier<S> {
     SetDefaultAnnotation(default_annotation::SetDefaultAnnotation<S>),
 }

@@ -20,10 +20,10 @@ use snafu::{FromString as _, Whatever};
 
 use std::fmt::{Debug, Display};
 
-use ts_rs::TS;
+use tsify::Tsify;
 
-#[derive(TS, Debug, Clone, Deserialize, Serialize)]
-#[ts(export)]
+#[derive(Tsify, Debug, Clone, Deserialize, Serialize)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct JsonSchema<S> {
     pub language: S,
     pub additional_schemas: Vec<(S, S)>,

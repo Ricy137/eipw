@@ -24,6 +24,7 @@ tokio = { optional = true, version = "1.29.0", features = [ "macros" ] }
 scraper = { version = "0.17.1", default-features = false }
 jsonschema = { version = "0.17.0", default-features = false }
 ts-rs = "8.1"
+tsify = "0.4.5"
 wasm-bindgen = { version = "0.2" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

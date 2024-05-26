@@ -22,10 +22,10 @@ use snafu::Snafu;
 
 use std::fmt::{ Debug, Display };
 
-use ts_rs::TS;
+use tsify::Tsify;
 
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
+#[derive(Tsify, Debug, Serialize, Deserialize, Clone)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct RelativeLinks<S> {
     pub exceptions: Vec<S>,
 }

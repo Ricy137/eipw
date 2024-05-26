@@ -16,10 +16,10 @@ use serde::{ Deserialize, Serialize };
 
 use std::fmt::Debug;
 
-use ts_rs::TS;
+use tsify::Tsify;
 
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
+#[derive(Tsify, Debug, Serialize, Deserialize, Clone)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct HeadingsSpace;
 
 impl Lint for HeadingsSpace {

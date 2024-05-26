@@ -23,36 +23,7 @@ use std::pin::Pin;
 
 use wasm_bindgen::prelude::*;
 
-use ts_rs::TS;
-
-// #[wasm_bindgen(typescript_custom_section)]
-// const TS_APPEND_CONTENT: &'static str =
-//     r#"
-// export type LintResult = {
-//     formatted: string;
-// };
-
-// export type LintOptions = {
-//     allow?: string[];
-//     warn?: string[];
-//     deny?: string[];
-//     default_lints?: Record<string, any>;
-//     default_modifiers?: any[];
-// };
-
-// export function lint(sources: string[], options?: LintOptions): Promise<LintResult>;
-
-// export function format(snippet: LintResult): string;
-// "#;
-
-// #[wasm_bindgen]
-// extern "C" {
-//     #[wasm_bindgen(typescript_type = "LintResult")]
-//     pub type LintResult;
-
-//     #[wasm_bindgen(typescript_type = "LintOptions")]
-//     pub type LintOptions;
-// }
+use tsify::Tsify;
 
 #[derive(Debug)]
 struct Error(String);
@@ -101,8 +72,8 @@ impl Fetch for NodeFetch {
     }
 }
 
-#[derive(TS, Debug, Deserialize)]
-#[ts(export)]
+#[derive(Tsify, Debug, Serialize, Deserialize)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 struct Opts {
     #[serde(default)]
     allow: Vec<String>,

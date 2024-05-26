@@ -17,12 +17,12 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
 
-use ts_rs::TS;
+use tsify::Tsify;
 
-#[derive(TS, Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Tsify, Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 #[serde(rename_all = "kebab-case")]
-#[ts(export)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub enum Mode {
     /// Ensure that each syntax node individually doesn't contain the pattern.
     Excludes,
@@ -30,8 +30,8 @@ pub enum Mode {
     //       matches the pattern.
 }
 
-#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
-#[ts(export)]
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct Regex<S> {
     pub mode: Mode,
     pub pattern: S,

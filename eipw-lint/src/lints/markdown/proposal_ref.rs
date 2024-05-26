@@ -19,10 +19,10 @@ use std::collections::HashSet;
 use std::fmt::{Debug, Display};
 use std::path::PathBuf;
 
-use ts_rs::TS;
+use tsify::Tsify;
 
-#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
-#[ts(export)]
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct ProposalRef<S> {
     pub prefix: S,
     pub suffix: S,

@@ -10,11 +10,11 @@ use crate::lints::{Context, Error, Lint};
 
 use serde::{Deserialize, Serialize};
 
-use ts_rs::TS;
+use tsify::Tsify;
 
-#[derive(TS, Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Tsify, Debug, Copy, Clone, Serialize, Deserialize)]
 #[non_exhaustive]
-#[ts(export)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct Trim;
 
 impl Lint for Trim {

@@ -18,11 +18,11 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt::{Debug, Display};
 
-use ts_rs::TS;
+use tsify::Tsify;
 
-#[derive(TS,Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Tsify,Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(transparent)]
-#[ts(export)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct LinkFirst<S>(pub S);
 
 impl<S> Lint for LinkFirst<S>
