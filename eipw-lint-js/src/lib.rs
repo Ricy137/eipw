@@ -23,6 +23,158 @@ use std::pin::Pin;
 
 use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen(typescript_custom_section)]
+const TS_APPEND_CONTENT: &'static str = r#"
+export interface Opts {
+    allow?: string[];
+    warn?: string[];
+    deny?: string[];
+    default_lints?: Record<string, DefaultLint<string>> | null;
+    default_modifiers?: DefaultModifier<string>[] | null;
+}
+
+export interface Snippet {
+    formatted: string;
+}
+
+export interface ProposalRef<S> {
+    prefix: S;
+    suffix: S;
+}
+
+export type LinkFirst<S> = S;
+
+export interface RelativeLinks<S> {
+    exceptions: S[];
+}
+
+export interface JsonSchema<S> {
+    language: S;
+    additional_schemas: [S, S][];
+    schema: S;
+    help: S;
+}
+
+export type DefaultModifier<S> = { kind: "set-default-annotation" } & SetDefaultAnnotation<S>;
+
+export interface OneOf<S> {
+    name: S;
+    values: S[];
+}
+
+export type NoDuplicates = null;
+
+export type Date<S> = S;
+
+export type Url<S> = S;
+
+export type Trim = null;
+
+export type Order<S> = S[];
+
+export type UintList<S> = S;
+
+export type Uint<S> = S;
+
+export type Required<S> = S[];
+
+export interface RequiresStatus<S> {
+    requires: S;
+    status: S;
+    flow: S[][];
+    prefix: S;
+    suffix: S;
+}
+
+export interface Length<S> {
+    name: S;
+    min: number | null;
+    max: number | null;
+}
+
+export interface Regex<S> {
+    mode: Mode;
+    pattern: S;
+    message: S;
+}
+
+export interface RequireReferenced<S> {
+    name: S;
+    requires: S;
+}
+
+export type List<S> = S;
+
+export interface LinkStatus<S> {
+    status: S;
+    flow: S[][];
+    prefix: S;
+    suffix: S;
+}
+
+export type DefaultLint<S> = { kind: "preamble-author"; name: Author<S> } | { kind: "preamble-date"; name: Date<S> } | ({ kind: "preamble-file-name" } & FileName<S>) | ({ kind: "preamble-length" } & Length<S>) | { kind: "preamble-list"; name: List<S> } | ({ kind: "preamble-no-duplicates" } & NoDuplicates) | ({ kind: "preamble-one-of" } & OneOf<S>) | { kind: "preamble-order"; names: Order<S> } | ({ kind: "preamble-proposal-ref" } & ProposalRef<S>) | ({ kind: "preamble-regex" } & Regex<S>) | ({ kind: "preamble-require-referenced" } & RequireReferenced<S>) | { kind: "preamble-required"; names: Required<S> } | ({ kind: "preamble-required-if-eq" } & RequiredIfEq<S>) | ({ kind: "preamble-requires-status" } & RequiresStatus<S>) | ({ kind: "preamble-trim" } & Trim) | { kind: "preamble-uint"; name: Uint<S> } | { kind: "preamble-uint-list"; name: UintList<S> } | { kind: "preamble-url"; name: Url<S> } | ({ kind: "markdown-html-comments" } & HtmlComments<S>) | ({ kind: "markdown-json-schema" } & JsonSchema<S>) | { kind: "markdown-link-first"; pattern: LinkFirst<S> } | ({ kind: "markdown-link-status" } & LinkStatus<S>) | ({ kind: "markdown-proposal-ref" } & ProposalRef<S>) | ({ kind: "markdown-regex" } & Regex<S>) | ({ kind: "markdown-relative-links" } & RelativeLinks<S>) | { kind: "markdown-section-order"; sections: SectionOrder<S> } | { kind: "markdown-section-required"; sections: SectionRequired<S> } | ({ kind: "markdown-headings-space" } & HeadingsSpace);
+
+export interface HtmlComments<S> {
+    name: S;
+    warn_for: S[];
+}
+
+export interface Regex<S> {
+    name: S;
+    mode: Mode;
+    pattern: S;
+    message: S;
+}
+
+export type Mode = "includes" | "excludes";
+
+export type SectionRequired<S> = S[];
+
+export interface SetDefaultAnnotation<S> {
+    name: S;
+    value: S;
+    annotation_type: AnnotationTypeDef;
+}
+
+export type AnnotationTypeDef = "Error" | "Warning" | "Info" | "Note" | "Help";
+
+export interface RequiredIfEq<S> {
+    when: S;
+    equals: S;
+    then: S;
+}
+
+export interface FileName<S> {
+    name: S;
+    prefix: S;
+    suffix: S;
+}
+
+export type HeadingsSpace = null;
+
+export interface ProposalRef<S> {
+    name: S;
+    prefix: S;
+    suffix: S;
+}
+
+export type Author<S> = S;
+
+export type SectionOrder<S> = S[];
+"#;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(typescript_type = "Opts")]
+    pub type OptsJS;
+}
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(typescript_type = "{ formatted: string }")]
+    pub type SnippetJS;
+}
+
 #[derive(Debug)]
 struct Error(String);
 
