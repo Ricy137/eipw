@@ -4,27 +4,29 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_lint::fetch::Fetch;
-use eipw_lint::lints::{DefaultLint, Lint};
-use eipw_lint::modifiers::{DefaultModifier, Modifier};
-use eipw_lint::reporters::{AdditionalHelp, Json};
-use eipw_lint::{default_lints, Linter, Options};
-
-use js_sys::{JsString, Object};
-
-use serde::{Deserialize, Serialize};
-
-use std::collections::HashMap;
-use std::fmt;
-use std::future::Future;
-use std::ops::Deref;
-use std::path::PathBuf;
-use std::pin::Pin;
-
-use wasm_bindgen::prelude::*;
+ use eipw_lint::fetch::Fetch;
+ use eipw_lint::lints::{DefaultLint, Lint};
+ use eipw_lint::modifiers::{DefaultModifier, Modifier};
+ use eipw_lint::reporters::{AdditionalHelp, Json};
+ use eipw_lint::{default_lints, Linter, Options};
+ 
+ use js_sys::{JsString, Object};
+ 
+ use serde::{Deserialize, Serialize};
+ 
+ use std::collections::HashMap;
+ use std::fmt;
+ use std::future::Future;
+ use std::ops::Deref;
+ use std::path::PathBuf;
+ use std::pin::Pin;
+ 
+ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(typescript_custom_section)]
-const TS_APPEND_CONTENT: &'static str = r#"
+const TS_APPEND_CONTENT: &'static str =r#"
+export type Options= Opts|null
+
 export interface Opts {
     allow?: string[];
     warn?: string[];
@@ -161,17 +163,19 @@ export interface ProposalRef<S> {
 export type Author<S> = S;
 
 export type SectionOrder<S> = S[];
+
+export function lint(
+    sources: string[],
+    options?: Opts | null
+): Promise<Snippet[]>;
 "#;
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(typescript_type = "Opts")]
+    #[wasm_bindgen(typescript_type = "Options")]
     pub type OptsJS;
-}
 
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(typescript_type = "{ formatted: string }")]
+    #[wasm_bindgen(typescript_type = "Snippet")]
     pub type SnippetJS;
 }
 
@@ -265,7 +269,7 @@ impl Opts {
 }
 
 #[wasm_bindgen]
-pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsValue, JsError> {
+pub async fn lint(sources: Vec<JsString>, options: Option<OptsJS>) -> Result<JsValue, JsError> {
     let sources: Vec<_> = sources
         .into_iter()
         .map(|v| v.as_string().unwrap())
@@ -315,22 +319,20 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
     let reporter = linter.run().await?;
 
     let serializer = serde_wasm_bindgen::Serializer::json_compatible();
-    let js_value = reporter
-        .into_inner()
-        .into_reports()
-        .serialize(&serializer)
-        .unwrap();
+    let js_value = reporter.into_inner().into_reports().serialize(&serializer).unwrap();
 
     Ok(js_value)
 }
 
 #[wasm_bindgen]
-pub fn format(snippet: &JsValue) -> Result<String, JsError> {
+pub fn format(snippet: &SnippetJS) -> Result<String, JsError> {
     let value: serde_json::Value = serde_wasm_bindgen::from_value(snippet.deref().clone())?;
 
     let obj = match value {
         serde_json::Value::Object(o) => o,
-        _ => return Err(JsError::new("expected object")),
+        _ => {
+            return Err(JsError::new("expected object"));
+        }
     };
 
     match obj.get("formatted") {
