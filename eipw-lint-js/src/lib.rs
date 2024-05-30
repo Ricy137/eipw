@@ -333,9 +333,7 @@ pub fn format(snippet: &SnippetJS) -> Result<String, JsError> {
 
     let obj = match value {
         serde_json::Value::Object(o) => o,
-        _ => {
-            return Err(JsError::new("expected object"));
-        }
+        _ => return Err(JsError::new("expected object")),
     };
 
     match obj.get("formatted") {

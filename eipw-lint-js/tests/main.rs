@@ -153,7 +153,10 @@ async fn lint_json_schema() {
 
     let path = path.to_str().unwrap();
 
-    let result = lint(vec![JsString::from(path)], None).await.ok().unwrap();
+    let result = lint(vec![JsString::from(path)], None)
+        .await
+        .ok()
+        .unwrap();
 
     let actual: serde_json::Value = serde_wasm_bindgen::from_value(result).unwrap();
     let expected = json! {
@@ -455,7 +458,10 @@ async fn format_one() {
 
     let path = path.to_str().unwrap();
 
-    let result = lint(vec![JsString::from(path)], None).await.ok().unwrap();
+    let result = lint(vec![JsString::from(path)], None)
+        .await
+        .ok()
+        .unwrap();
 
     let snippets: Vec<serde_json::Value> = serde_wasm_bindgen::from_value(result).unwrap();
     let snippet = snippets[0]
