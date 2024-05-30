@@ -89,7 +89,10 @@ async fn lint_one() {
 
     let path = path.to_str().unwrap();
 
-    let result = lint(vec![JsString::from(path)], None).await.ok().unwrap();
+    let result = lint(vec![JsString::from(path)], None)
+        .await
+        .ok()
+        .unwrap();
 
     let actual: serde_json::Value = serde_wasm_bindgen::from_value(result).unwrap();
     let expected = json! {
