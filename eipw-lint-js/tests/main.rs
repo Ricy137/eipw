@@ -228,10 +228,6 @@ async fn lint_one_with_options() {
     );
 
     let opts_js = convert_to_opts_js(&opts);
-    //  let opts_js = opts
-    //      .serialize(&serde_wasm_bindgen::Serializer::json_compatible())
-    //      .unwrap();
-    //  let opts = OptsJS::try_from(&opts_js).unwrap().to_owned();
 
     let result = lint(vec![JsString::from(path)], Some(opts_js))
         .await
