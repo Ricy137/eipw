@@ -4,19 +4,82 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_lint_js::{format, lint};
+use eipw_lint_js::{format, lint, OptsJS, SnippetJS};
 
-use js_sys::Object;
+use js_sys::{JsString, Object, Reflect};
 
 use serde::Serialize;
 
-use serde_json::json;
+use serde_json::{json, Value};
 
 use std::path::PathBuf;
 
 use wasm_bindgen::prelude::*;
 
 use wasm_bindgen_test::wasm_bindgen_test;
+
+fn convert_to_js_object(value: &Value) -> JsValue {
+    match value {
+        Value::Object(map) => {
+            let js_object = Object::new();
+            for (key, val) in map.iter() {
+                let js_value = convert_to_js_object(val);
+                Reflect::set(&js_object, &JsValue::from_str(key), &js_value).unwrap();
+            }
+            JsValue::from(js_object)
+        }
+        Value::Array(arr) => {
+            let js_array = js_sys::Array::new();
+            for val in arr.iter() {
+                let js_value = convert_to_js_object(val);
+                js_array.push(&js_value);
+            }
+            JsValue::from(js_array)
+        }
+        _ => serde_wasm_bindgen::to_value(value).unwrap(),
+    }
+}
+
+pub fn convert_to_opts_js(opts: &Value) -> OptsJS {
+    let opts_obj = Object::new();
+
+    if let Some(warn) = opts.get("warn") {
+        let js_warn = serde_wasm_bindgen::to_value(warn).unwrap();
+        Reflect::set(&opts_obj, &JsValue::from_str("warn"), &js_warn).unwrap();
+    }
+
+    if let Some(allow) = opts.get("allow") {
+        let js_allow = serde_wasm_bindgen::to_value(allow).unwrap();
+        Reflect::set(&opts_obj, &JsValue::from_str("allow"), &js_allow).unwrap();
+    }
+
+    if let Some(deny) = opts.get("deny") {
+        let js_deny = serde_wasm_bindgen::to_value(deny).unwrap();
+        Reflect::set(&opts_obj, &JsValue::from_str("deny"), &js_deny).unwrap();
+    }
+
+    if let Some(default_lints) = opts.get("default_lints") {
+        let js_default_lints = convert_to_js_object(default_lints);
+        Reflect::set(
+            &opts_obj,
+            &JsValue::from_str("default_lints"),
+            &js_default_lints,
+        )
+        .unwrap();
+    }
+
+    if let Some(default_modifiers) = opts.get("default_modifiers") {
+        let js_default_modifiers = convert_to_js_object(default_modifiers);
+        Reflect::set(
+            &opts_obj,
+            &JsValue::from_str("default_modifiers"),
+            &js_default_modifiers,
+        )
+        .unwrap();
+    }
+
+    opts_obj.unchecked_into::<OptsJS>()
+}
 
 #[wasm_bindgen_test]
 async fn lint_one() {
@@ -26,10 +89,7 @@ async fn lint_one() {
 
     let path = path.to_str().unwrap();
 
-    let result = lint(vec![JsValue::from_str(path)], None)
-        .await
-        .ok()
-        .unwrap();
+    let result = lint(vec![JsString::from(path)], None).await.ok().unwrap();
 
     let actual: serde_json::Value = serde_wasm_bindgen::from_value(result).unwrap();
     let expected = json! {
@@ -90,10 +150,7 @@ async fn lint_json_schema() {
 
     let path = path.to_str().unwrap();
 
-    let result = lint(vec![JsValue::from_str(path)], None)
-        .await
-        .ok()
-        .unwrap();
+    let result = lint(vec![JsString::from(path)], None).await.ok().unwrap();
 
     let actual: serde_json::Value = serde_wasm_bindgen::from_value(result).unwrap();
     let expected = json! {
@@ -170,12 +227,13 @@ async fn lint_one_with_options() {
        }
     );
 
-    let opts_js = opts
-        .serialize(&serde_wasm_bindgen::Serializer::json_compatible())
-        .unwrap();
-    let opts = Object::try_from(&opts_js).unwrap().to_owned();
+    let opts_js = convert_to_opts_js(&opts);
+    //  let opts_js = opts
+    //      .serialize(&serde_wasm_bindgen::Serializer::json_compatible())
+    //      .unwrap();
+    //  let opts = OptsJS::try_from(&opts_js).unwrap().to_owned();
 
-    let result = lint(vec![JsValue::from_str(path)], Some(opts))
+    let result = lint(vec![JsString::from(path)], Some(opts_js))
         .await
         .ok()
         .unwrap();
@@ -253,12 +311,9 @@ async fn lint_one_with_default_lints() {
        }
     );
 
-    let opts_js = opts
-        .serialize(&serde_wasm_bindgen::Serializer::json_compatible())
-        .unwrap();
-    let opts = Object::try_from(&opts_js).unwrap().to_owned();
+    let opts_js = convert_to_opts_js(&opts);
 
-    let result = lint(vec![JsValue::from_str(path)], Some(opts))
+    let result = lint(vec![JsString::from(path)], Some(opts_js))
         .await
         .ok()
         .unwrap();
@@ -335,12 +390,9 @@ async fn lint_one_with_default_modifiers() {
        }
     );
 
-    let opts_js = opts
-        .serialize(&serde_wasm_bindgen::Serializer::json_compatible())
-        .unwrap();
-    let opts = Object::try_from(&opts_js).unwrap().to_owned();
+    let opts_js = convert_to_opts_js(&opts);
 
-    let result = lint(vec![JsValue::from_str(path)], Some(opts))
+    let result = lint(vec![JsString::from(path)], Some(opts_js))
         .await
         .ok()
         .unwrap();
@@ -404,16 +456,15 @@ async fn format_one() {
 
     let path = path.to_str().unwrap();
 
-    let result = lint(vec![JsValue::from_str(path)], None)
-        .await
-        .ok()
-        .unwrap();
+    let result = lint(vec![JsString::from(path)], None).await.ok().unwrap();
 
     let snippets: Vec<serde_json::Value> = serde_wasm_bindgen::from_value(result).unwrap();
     let snippet = snippets[0]
         .serialize(&serde_wasm_bindgen::Serializer::json_compatible())
         .unwrap();
-    let actual = format(&snippet).ok().unwrap();
+    let snippet_js: &SnippetJS = snippet.unchecked_ref();
+
+    let actual = format(snippet_js).ok().unwrap();
 
     let expected = r#"error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`
   --> tests/eips/eip-1000.md:12:10

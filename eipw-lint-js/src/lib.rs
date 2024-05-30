@@ -4,28 +4,27 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
- use eipw_lint::fetch::Fetch;
- use eipw_lint::lints::{DefaultLint, Lint};
- use eipw_lint::modifiers::{DefaultModifier, Modifier};
- use eipw_lint::reporters::{AdditionalHelp, Json};
- use eipw_lint::{default_lints, Linter, Options};
- 
- use js_sys::{JsString, Object};
- 
- use serde::{Deserialize, Serialize};
- 
- use std::collections::HashMap;
- use std::fmt;
- use std::future::Future;
- use std::ops::Deref;
- use std::path::PathBuf;
- use std::pin::Pin;
- 
- use wasm_bindgen::prelude::*;
+use eipw_lint::fetch::Fetch;
+use eipw_lint::lints::{DefaultLint, Lint};
+use eipw_lint::modifiers::{DefaultModifier, Modifier};
+use eipw_lint::reporters::{AdditionalHelp, Json};
+use eipw_lint::{default_lints, Linter, Options};
+
+use js_sys::JsString;
+
+use serde::{Deserialize, Serialize};
+
+use std::collections::HashMap;
+use std::fmt;
+use std::future::Future;
+use std::ops::Deref;
+use std::path::PathBuf;
+use std::pin::Pin;
+
+use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(typescript_custom_section)]
-const TS_APPEND_CONTENT: &'static str =r#"
-export type Options= Opts|null
+const TS_APPEND_CONTENT: &'static str = r#"
 
 export interface Opts {
     allow?: string[];
@@ -138,7 +137,7 @@ export interface SetDefaultAnnotation<S> {
     annotation_type: AnnotationTypeDef;
 }
 
-export type AnnotationTypeDef = "Error" | "Warning" | "Info" | "Note" | "Help";
+export type AnnotationTypeDef = "error" | "warning" | "info" | "note" | "help";
 
 export interface RequiredIfEq<S> {
     when: S;
@@ -172,7 +171,7 @@ export function lint(
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(typescript_type = "Options")]
+    #[wasm_bindgen(typescript_type = "Opts")]
     pub type OptsJS;
 
     #[wasm_bindgen(typescript_type = "Snippet")]
@@ -319,7 +318,11 @@ pub async fn lint(sources: Vec<JsString>, options: Option<OptsJS>) -> Result<JsV
     let reporter = linter.run().await?;
 
     let serializer = serde_wasm_bindgen::Serializer::json_compatible();
-    let js_value = reporter.into_inner().into_reports().serialize(&serializer).unwrap();
+    let js_value = reporter
+        .into_inner()
+        .into_reports()
+        .serialize(&serializer)
+        .unwrap();
 
     Ok(js_value)
 }
