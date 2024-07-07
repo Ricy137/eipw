@@ -8,12 +8,12 @@ interface SnippetDef {
 /**
  * @param {string[]} sources
  * @param {Opts | undefined} options
- * @returns {Promise<any>}
+ * @returns {Promise<SnippetDef>}
  */
 export function lint(sources: string[], options?: Opts): Promise<SnippetDef>;
 
 /**
- * @param {any} snippet
+ * @param {SnippetDef[]} snippet
  * @returns {string}
  */
 export function format(snippet: SnippetDef[]): string;
