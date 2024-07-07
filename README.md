@@ -122,7 +122,12 @@ You can find the [package on npm](https://www.npmjs.com/package/eipw-lint-js).
 
 ```bash
 cd eipw-lint-js
+cargo test
 wasm-pack test --node
 wasm-pack build -t nodejs
+# remove bindings directory under pkg directory 
+mv bindings pkg/
+# replace eipw_lint_js.d.ts with the one in the root directory 
+mv eipw_lint_js.d.ts pkg/eipw_lint_js.d.ts
 wasm-pack publish -t nodejs
 ```
