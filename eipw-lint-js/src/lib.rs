@@ -23,6 +23,8 @@ use std::pin::Pin;
 
 use wasm_bindgen::prelude::*;
 
+use ts_rs::TS;
+
 #[derive(Debug)]
 struct Error(String);
 
@@ -68,7 +70,8 @@ impl Fetch for NodeFetch {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(TS, Debug, Deserialize)]
+#[ts(export)]
 struct Opts {
     #[serde(default)]
     allow: Vec<String>,

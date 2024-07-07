@@ -20,7 +20,9 @@ use snafu::{FromString as _, Whatever};
 
 use std::fmt::{Debug, Display};
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Deserialize, Serialize)]
 pub struct JsonSchema<S> {
     pub language: S,
     pub additional_schemas: Vec<(S, S)>,

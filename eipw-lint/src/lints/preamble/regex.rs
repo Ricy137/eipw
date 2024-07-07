@@ -12,7 +12,9 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 #[serde(rename_all = "kebab-case")]
 pub enum Mode {
@@ -20,7 +22,7 @@ pub enum Mode {
     Excludes,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Regex<S> {
     pub name: S,
     pub mode: Mode,

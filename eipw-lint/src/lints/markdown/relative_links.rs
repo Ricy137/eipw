@@ -22,7 +22,9 @@ use snafu::Snafu;
 
 use std::fmt::{Debug, Display};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
 pub struct RelativeLinks<S> {
     pub exceptions: Vec<S>,
 }

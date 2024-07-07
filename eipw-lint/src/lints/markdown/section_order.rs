@@ -15,7 +15,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::{Debug, Display, Write};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct SectionOrder<S>(pub Vec<S>);
 

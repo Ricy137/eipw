@@ -19,7 +19,9 @@ use std::collections::HashSet;
 use std::fmt::{Debug, Display};
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct ProposalRef<S> {
     pub prefix: S,
     pub suffix: S,

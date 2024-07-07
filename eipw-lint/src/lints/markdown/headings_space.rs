@@ -16,7 +16,9 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::Debug;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
 pub struct HeadingsSpace;
 
 impl Lint for HeadingsSpace {

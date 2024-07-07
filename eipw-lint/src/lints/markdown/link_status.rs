@@ -18,7 +18,9 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display};
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Serialize, Deserialize)]
 pub struct LinkStatus<S> {
     pub status: S,
     pub flow: Vec<Vec<S>>,

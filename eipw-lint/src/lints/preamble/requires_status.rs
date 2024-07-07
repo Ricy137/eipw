@@ -14,7 +14,9 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Serialize, Deserialize)]
 pub struct RequiresStatus<S> {
     pub requires: S,
     pub status: S,

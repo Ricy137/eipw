@@ -12,7 +12,9 @@ use std::fmt::{Debug, Display};
 
 use super::{markdown, preamble, Lint};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 #[non_exhaustive]
 pub enum DefaultLint<S> {

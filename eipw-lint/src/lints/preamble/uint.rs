@@ -12,7 +12,9 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct Uint<S>(pub S);
 
@@ -58,7 +60,7 @@ where
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(transparent)]
 pub struct UintList<S>(pub S);
 

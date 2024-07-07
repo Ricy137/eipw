@@ -14,6 +14,8 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
 
+use ts_rs::TS;
+
 fn footer() -> Vec<Annotation<'static>> {
     vec![
         Annotation {
@@ -39,7 +41,7 @@ fn footer() -> Vec<Annotation<'static>> {
     ]
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct Author<S>(pub S);
 

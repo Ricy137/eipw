@@ -15,6 +15,8 @@ use serde::{Deserialize, Serialize};
 
 use super::{Error, Modifier};
 
+use ts_rs::TS;
+
 #[derive(Serialize, Deserialize)]
 #[serde(remote = "AnnotationType", rename_all = "kebab-case")]
 enum AnnotationTypeDef {
@@ -25,12 +27,13 @@ enum AnnotationTypeDef {
     Help,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(TS, Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct SetDefaultAnnotation<S> {
     pub name: S,
     pub value: S,
 
     #[serde(with = "AnnotationTypeDef")]
+    #[ts(type = "AnnotationTypeDef")]
     pub annotation_type: AnnotationType,
 }
 

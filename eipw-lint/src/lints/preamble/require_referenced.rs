@@ -14,7 +14,9 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
 
-#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct RequireReferenced<S> {
     pub name: S,
     pub requires: S,

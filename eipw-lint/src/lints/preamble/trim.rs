@@ -10,7 +10,9 @@ use crate::lints::{Context, Error, Lint};
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct Trim;
 
 impl Lint for Trim {
